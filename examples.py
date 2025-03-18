@@ -1,23 +1,23 @@
 import asyncio
 import time
-from dcache import cache_on_disk
+from dcache import dcache
 
 # Example with a synchronous function
-@cache_on_disk
+@dcache
 def expensive_calculation(x, y):
     print(f"Calculating {x} + {y}...")
     time.sleep(2)  # Simulate expensive operation
     return x + y
 
 # Example with an asynchronous function
-@cache_on_disk
+@dcache
 async def async_expensive_calculation(x, y):
     print(f"Async calculating {x} + {y}...")
     await asyncio.sleep(2)  # Simulate expensive async operation
     return x + y
 
 # Example with required kwargs
-@cache_on_disk(required_kwargs=["user_id"])
+@dcache(required_kwargs=["user_id"])
 def get_user_data(user_id, include_details=False):
     print(f"Getting data for user {user_id}...")
     time.sleep(1)  # Simulate database query

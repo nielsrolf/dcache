@@ -1,3 +1,3 @@
-from .cache import CacheOnDisk, cache_on_disk
+from .cache import DCache, dcache
 
-__all__ = ["CacheOnDisk", "cache_on_disk"]
+__all__ = ["DCache", "dcache"]

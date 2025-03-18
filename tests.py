@@ -4,15 +4,15 @@ import shutil
 import unittest
 from unittest.mock import patch
 
-from dcache import CacheOnDisk, cache_on_disk
+from dcache import DCache, dcache
 
 
-class TestCacheOnDisk(unittest.TestCase):
+class TestDCache(unittest.TestCase):
     def setUp(self):
         # Create a test cache directory
         self.test_cache_dir = os.path.join(os.getcwd(), ".test_cache")
         os.makedirs(self.test_cache_dir, exist_ok=True)
-        self.test_cache = CacheOnDisk(cache_dir=self.test_cache_dir)
+        self.test_cache = DCache(cache_dir=self.test_cache_dir)
         
     def tearDown(self):
         # Clean up the test cache directory

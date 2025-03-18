@@ -9,10 +9,10 @@ from typing import Any, Callable, List, Optional, Union
 import diskcache as dc
 
 
-class CacheOnDisk:
+class DCache:
     def __init__(self, n_semaphore: int = 100, cache_dir: Optional[str] = None):
         """
-        Create a CacheOnDisk instance.
+        Create a DCache instance.
 
         Parameters:
             n_semaphore (int): Maximum number of parallel cache accesses.
@@ -27,14 +27,14 @@ class CacheOnDisk:
 
     def __call__(self, possible_func=None, *, required_kwargs=None):
         """
-        When used as a decorator, CacheOnDisk works in two ways:
+        When used as a decorator, DCache works in two ways:
 
           1. As a no-argument decorator:
-                @cache_on_disk
+                @dcache
                 def my_func(...): ...
 
           2. As a parameterized decorator:
-                @cache_on_disk(required_kwargs=["foo"])
+                @dcache(required_kwargs=["foo"])
                 def my_func(...): ...
 
         The `required_kwargs` parameter (a list) determines which keyword
@@ -44,10 +44,10 @@ class CacheOnDisk:
         Works with both synchronous and asynchronous functions.
         """
         if possible_func is not None and callable(possible_func):
-            # Used as "@cache_on_disk" without explicit parameters.
+            # Used as "@dcache" without explicit parameters.
             return self._make_decorator(required_kwargs or [])(possible_func)
         else:
-            # Used as "@cache_on_disk(required_kwargs=[...])". Return a decorator.
+            # Used as "@dcache(required_kwargs=[...])". Return a decorator.
             required_kwargs = required_kwargs or []
             def decorator(func):
                 return self._make_decorator(required_kwargs)(func)
@@ -143,4 +143,4 @@ class CacheOnDisk:
 
 
 # Create a default object for easy importing.
-cache_on_disk = CacheOnDisk()
+dcache = DCache()
