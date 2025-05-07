@@ -5,7 +5,7 @@ A disk-based caching utility for Python functions.
 ## Installation
 
 ```bash
-pip install dcache
+pip install cache_on_disk
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ pip install dcache
 ### Basic Usage
 
 ```python
-from dcache import dcache
+from cache_on_disk import dcache
 
 # For synchronous functions
 @dcache
