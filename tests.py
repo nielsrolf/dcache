@@ -4,7 +4,7 @@ import shutil
 import unittest
 from unittest.mock import patch
 
-from dcache import DCache, dcache
+from cache_on_disk import DCache, dcache
 
 
 class TestDCache(unittest.TestCase):

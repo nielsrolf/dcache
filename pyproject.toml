@@ -3,12 +3,12 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dcache"
+name = "cache_on_disk"
 version = "0.1.0"
 description = "A disk-based caching utility for Python functions"
 readme = "README.md"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "Niels Warncke", email = "niels.warncke@gmail.com"}
 ]
 license = {text = "MIT"}
 classifiers = [
@@ -22,5 +22,5 @@ dependencies = [
 requires-python = ">=3.7"
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/dcache"
-"Bug Tracker" = "https://github.com/yourusername/dcache/issues"
+"Homepage" = "https://github.com/nielsrolf/dcache"
+"Bug Tracker" = "https://github.com/nielsrolf/dcache/issues"
