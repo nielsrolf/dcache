@@ -17,6 +17,7 @@ if not logger.hasHandlers(): # Add a default NullHandler to prevent "No handler 
     logger.addHandler(logging.NullHandler())
 
 
+
 class DCache:
     """
     A flexible caching class using diskcache, designed for caching results of functions,
@@ -76,6 +77,8 @@ class DCache:
 
     def _serialize_value(self, value: Any) -> Any:
         """Attempts to JSON dump, falls back to string representation for key generation."""
+        if hasattr(value, 'to_dict'):
+            value = value.to_dict()
         try:
             json.dumps(value) # Test serializability for JSON
             return value
@@ -153,17 +156,18 @@ class DCache:
                     key = self._generate_cache_key(func, args, kwargs, param_names, actual_exclude_args)
                     
                     # 1. Try to read from cache
-                    try:
-                        async with self.async_read_semaphore:
-                            cached_value = await asyncio.to_thread(
-                                self.cache.get, key, default=self._sentinel
-                            )
-                        if cached_value is not self._sentinel:
-                            logger.info(f"Async cache hit: {func_qualname} (key: {key[:8]}...).")
-                            return cached_value
-                    except Exception as e:
-                        logger.error(f"Async cache read error: {func_qualname} (key: {key[:8]}...): {e}", exc_info=True)
-                        # Fall through to recompute if read fails
+                    if not kwargs.pop('_cache_overwrite', False):
+                        try:
+                            async with self.async_read_semaphore:
+                                cached_value = await asyncio.to_thread(
+                                    self.cache.get, key, default=self._sentinel
+                                )
+                            if cached_value is not self._sentinel:
+                                logger.info(f"Async cache hit: {func_qualname} (key: {key[:8]}...).")
+                                return cached_value
+                        except Exception as e:
+                            logger.error(f"Async cache read error: {func_qualname} (key: {key[:8]}...): {e}", exc_info=True)
+                            # Fall through to recompute if read fails
 
                     logger.info(f"Async cache miss: {func_qualname} (key: {key[:8]}...).")
                     
@@ -191,14 +195,15 @@ class DCache:
                     key = self._generate_cache_key(func, args, kwargs, param_names, actual_exclude_args)
 
                     # 1. Try to read from cache
-                    try:
-                        with self.sync_read_semaphore:
-                            cached_value = self.cache.get(key, default=self._sentinel)
-                        if cached_value is not self._sentinel:
-                            logger.info(f"Sync cache hit: {func_qualname} (key: {key[:8]}...).")
-                            return cached_value
-                    except Exception as e:
-                        logger.error(f"Sync cache read error: {func_qualname} (key: {key[:8]}...): {e}", exc_info=True)
+                    if not kwargs.pop('_cache_overwrite', False):
+                        try:
+                            with self.sync_read_semaphore:
+                                cached_value = self.cache.get(key, default=self._sentinel)
+                            if cached_value is not self._sentinel:
+                                logger.info(f"Sync cache hit: {func_qualname} (key: {key[:8]}...).")
+                                return cached_value
+                        except Exception as e:
+                            logger.error(f"Sync cache read error: {func_qualname} (key: {key[:8]}...): {e}", exc_info=True)
 
                     logger.info(f"Sync cache miss: {func_qualname} (key: {key[:8]}...).")
                     
@@ -214,7 +219,6 @@ class DCache:
                         logger.error(f"Sync cache write error: {func_qualname} (key: {key[:8]}...): {e}", exc_info=True)
                     return result
                 return sync_wrapper
-            
         if callable(possible_func):
             # Used as @dcache
             return decorator_builder(possible_func)
@@ -278,4 +282,12 @@ class DCache:
             logger.error(f"Error closing DCache: {e}", exc_info=True)
 
 
-dcache = DCache()
+def dcache(*args, **kwargs):
+    cache = DCache()
+    if len(args) > 0:
+        func = args[0]
+        return cache(func, **kwargs)
+    else:
+        def _dcache(func):
+            return cache(func, **kwargs)
+        return _dcache
